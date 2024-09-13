@@ -1,0 +1,7 @@
+[general]
+netid =
+
+[email]
+server = imap.example.com
+address = your.registered.personal.email@example.com
+password = y0ur_V3ry_seCuRe_P4ssw*rd!
