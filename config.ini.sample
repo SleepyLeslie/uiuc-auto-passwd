@@ -1,5 +1,6 @@
-[general]
-netid =
+[auth]
+netid = your_netid
+duo_key = raw_TOTP_secret
 
 [email]
 server = imap.example.com
