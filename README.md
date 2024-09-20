@@ -36,7 +36,7 @@ This email genuinely demonstrates their extremely good understanding of computer
 
 Currently it is only a Proof of Concept showing that I can automate the password resetting process. More commits will be added to make it a more customizable tool. For now, it:
 - Requires you to specify your NetID in a config file,
-- Asks you for a Duo HOTP code (Duo is simply HOTP with the setup key hidden behind some proprietary APIs that have been reverse engineered anyways),
+- Generates a TOTP code to authenticate with Duo (Duo is simply TOTP/HOTP with the setup key hidden behind some proprietary APIs that have been reverse engineered anyways),
 - Requests a password reset email,
 - Connects to your IMAP server,
 - Locates the requested email,
@@ -44,8 +44,11 @@ Currently it is only a Proof of Concept showing that I can automate the password
 - Resets your password and shows it to you.
 
 The following features are planned:
-- Duo HOTP integration, so no more HOTP code prompts.
 - Bitwarden integration to update the saved password(s).
 - NetworkManager integration.
 
 If you find this idea useful but you use a different setup than mine, say you prefer Duo push notifications (but seriously, why?) or use a personal email address that does not support IMAP for whatever reasons (e.g. proton free plan), feel free to raise feature requests and I will be happy to extend this tool.
+
+## TOTP
+
+UIUC supports Duo TOTP since June 2024. To set it up, use the same HOTP key as your TOTP key, 30 seconds as the refresh interval and 6 digits as the length. This script auto-generates TOTP codes, making it stateless.
