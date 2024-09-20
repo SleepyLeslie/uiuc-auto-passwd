@@ -61,31 +61,11 @@ def request_email() -> datetime:
         "_xsrf": xsrf_value,
         "version": "v4",
         "akey": akey_value,
-        "has_session_trust_analysis_feature": "False",
-        "session_trust_extension_id": "",
-        "java_version": "",
-        "flash_version": "",
-        "screen_resolution_width": "1200",
-        "screen_resolution_height": "1000",
-        "extension_instance_key": "",
-        "color_depth": "24",
-        "has_touch_capability": "false",
-        "ch_ua_error": "",
-        "client_hints": "",
-        "is_cef_browser": "false",
-        "is_ipad_os": "false",
-        "is_ie_compatibility_mode": "",
         "is_user_verifying_platform_authenticator_available": "false",
-        "user_verifying_platform_authenticator_available_error": "",
-        "acting_ie_version": "",
-        "react_support": "true",
-        "react_support_error_message": ""
     }
 
-    # POST to the endpoint to tell Duo about your environment : )
-    frame_post_resp = sess.post(frame_location, data=form_data, allow_redirects=False, headers={
-        "Referer": frame_location
-    })
+    # POST to the endpoint to submit the info we got from GET.
+    frame_post_resp = sess.post(frame_location, data=form_data, allow_redirects=False)
     # And we should get redirected to a "prompt" endpoint.
     prompt_location = DUO_ENDPOINT + frame_post_resp.headers["location"]
 
@@ -95,7 +75,7 @@ def request_email() -> datetime:
         "device": "null",
         "factor": "Passcode",
         "postAuthDestination": "OIDC_EXIT",
-        "browser_features": '{"touch_supported":false,"platform_authenticator_status":"available","webauthn_supported":false}',
+        "browser_features": '{"platform_authenticator_status":"available","webauthn_supported":false}',
         "sid": sid,
     })
     # We should now get someting like
@@ -114,7 +94,8 @@ def request_email() -> datetime:
         "sid": sid
     })
 
-    logger.info(f"Duo returned {status_resp.text}")
+    duo_result = json.loads(status_resp.text)["response"]
+    logger.info(f"Duo returned {duo_result['result']}: {duo_result['reason']}")
 
     # Record the time when we made the reset request.
     request_timestamp = datetime.now(timezone.utc)
@@ -152,7 +133,7 @@ def get_reset_url(request_timestamp: datetime) -> str:
         if email_timestamp > request_timestamp - timedelta(seconds=10):
             for part in msg.walk():
                 if part.get_content_type() == "text/plain":
-                    logger.info("Got reset link.")
+                    logger.info(f"Got reset link. It was sent at {email_timestamp}")
                     mail_content = part.get_payload()
                     break
             break
@@ -182,7 +163,11 @@ def perform_reset(reset_url: str, new_passwd: str):
     reset_resp = sess.post(IDSERVER_ENDPOINT + "/setPassword", data={
         "passwd": new_passwd
     })
-    logger.info(f"Reset result: {reset_resp.text}")
+    reset_result = json.loads(reset_resp.text)
+    if type(reset_result) is dict:
+        logger.info(f"Reset successful, password valid until {reset_result['expireDate']}.")
+    else:
+        logger.error(f"Reset failed: {reset_result}")
 
 
 request_timestamp = request_email()
