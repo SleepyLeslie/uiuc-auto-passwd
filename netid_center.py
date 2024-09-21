@@ -90,12 +90,16 @@ class NetIDCenter:
         })
 
         duo_result = json.loads(status_resp.text)["response"]
-        logger.info(f"Duo returned {duo_result['result']}: {duo_result['reason']}")
+        if duo_result["result"] == "SUCCESS":
+            logger.info("Duo authentication succeeded.")
+        else:
+            logger.error(f"Duo authentication failed, please retry. {duo_result['result']}: {duo_result['reason']}")
+            exit(1)
 
         # Record the time when we made the reset request.
         request_timestamp = datetime.now(timezone.utc)
         # This redirects us back to UIUC system and sends the reset email.
-        sess.post(DUO_ENDPOINT + "/frame/v4/oidc/exit", data= {
+        getmail_resp = sess.post(DUO_ENDPOINT + "/frame/v4/oidc/exit", data= {
             "txid": txid,
             "sid": sid,
             "factor": "Duo+Mobile+Passcode",
@@ -103,6 +107,12 @@ class NetIDCenter:
             "_xsrf": xsrf_value,
             "dampen_choice": "true"
         })
+
+        getmail_soup = BeautifulSoup(getmail_resp.text, "html.parser")
+        getmail_opts = json.loads(getmail_soup.find("script").string.split("=")[1].rstrip(";\n"))
+        if getmail_opts["pwEmailLocked"]:
+            logger.error(f"Your email option has been disabled until {getmail_opts['pwEmailLockedUntil']}")
+            exit(1)
 
         return request_timestamp
 
