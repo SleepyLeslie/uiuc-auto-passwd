@@ -11,7 +11,7 @@ netid_center = NetIDCenter(config)
 reset_url_getter = ResetURLGetter(config)
 
 request_timestamp = netid_center.request_email()
-logger.info(f"Requested password reset email at {request_timestamp}")
+logger.info(f"Requested password reset email at {request_timestamp}.")
 reset_url = reset_url_getter.get(request_timestamp)
 new_passwd = generate_passwd()
 logger.warning(f"Here is your new password! {new_passwd}")
