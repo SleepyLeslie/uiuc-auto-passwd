@@ -97,7 +97,7 @@ class NetIDCenter:
             exit(1)
 
         # Record the time when we made the reset request.
-        request_timestamp = datetime.now(timezone.utc)
+        request_timestamp = datetime.now().astimezone()
         # This redirects us back to UIUC system and sends the reset email.
         getmail_resp = sess.post(DUO_ENDPOINT + "/frame/v4/oidc/exit", data= {
             "txid": txid,
