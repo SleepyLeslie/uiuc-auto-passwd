@@ -6,3 +6,7 @@ duo_key = raw_TOTP_secret
 server = imap.example.com
 address = your.registered.personal.email@example.com
 password = y0ur_V3ry_seCuRe_P4ssw*rd!
+
+[integrations]
+print = true
+network_manager = false
