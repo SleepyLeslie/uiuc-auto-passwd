@@ -1,4 +1,4 @@
-from datetime import datetime, timezone 
+from datetime import datetime
 import json
 from urllib.parse import urlparse, parse_qs
 import requests
@@ -93,7 +93,8 @@ class NetIDCenter:
         if duo_result["result"] == "SUCCESS":
             logger.info("Duo authentication succeeded.")
         else:
-            logger.error(f"Duo authentication failed, please retry. {duo_result['result']}: {duo_result['reason']}")
+            logger.error("Duo authentication failed, please retry. %s: %s",
+                         duo_result['result'], duo_result['reason'])
             exit(1)
 
         # Record the time when we made the reset request.
@@ -111,7 +112,8 @@ class NetIDCenter:
         getmail_soup = BeautifulSoup(getmail_resp.text, "html.parser")
         getmail_opts = json.loads(getmail_soup.find("script").string.split("=")[1].rstrip(";\n"))
         if getmail_opts["pwEmailLocked"]:
-            logger.error(f"Your email option has been disabled until {getmail_opts['pwEmailLockedUntil']}")
+            logger.error("Your email option has been disabled until %s.",
+                         getmail_opts['pwEmailLockedUntil'])
             exit(1)
 
         return request_timestamp
@@ -125,9 +127,10 @@ class NetIDCenter:
             "passwd": new_passwd
         })
         reset_result = json.loads(reset_resp.text)
-        if type(reset_result) is dict:
-            logger.info(f"Reset successful, password valid until {reset_result['expireDate']}.")
-            return True
-        else:
-            logger.error(f"Reset failed: {reset_result}")
+        # Observation: UIUC API returns a list on failure, or a dict on success.
+        # The failure list contains rules not satisfied.
+        if not isinstance(reset_result, dict):
+            logger.error("Reset failed: %s", reset_result)
             return False
+        logger.info("Reset successful, password valid until %s.", reset_result['expireDate'])
+        return True

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import sys
 import time
 import imaplib
 import email
@@ -37,7 +38,7 @@ class ResetURLGetter:
                         break
                 if msg == "":
                     logger.critical("Could not parse email.")
-                    exit(1)
+                    sys.exit(1)
                 # Get the email timestamp.
                 email_timestamp = email.utils.parsedate_to_datetime(msg["Date"])
                 # Email servers might have small time deltas
@@ -45,12 +46,12 @@ class ResetURLGetter:
                 if email_timestamp > request_timestamp - timedelta(seconds=10):
                     for part in msg.walk():
                         if part.get_content_type() == "text/plain":
-                            logger.info(f"Got reset link. It was sent at {email_timestamp}.")
+                            logger.info("Got reset link. It was sent at %s.", email_timestamp)
                             mail_content = part.get_payload()
                             break
                     break
             if first_try:
-                logger.info(f"Latest password reset email was sent at {email_timestamp}.")
+                logger.info("Latest password reset email was sent at %s.", email_timestamp)
                 first_try = False
             logger.info("Email has not arrived, checking again in 5s.")
             time.sleep(5)
