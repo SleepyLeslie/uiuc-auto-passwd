@@ -14,8 +14,9 @@ request_timestamp = netid_center.request_email()
 logger.info("Requested password reset email at %s", request_timestamp)
 reset_url = reset_url_getter.get(request_timestamp)
 new_passwd = generate_passwd()
-logger.info("Resetting password.")
+logger.info("Resetting password...")
 netid_center.perform_reset(reset_url, new_passwd)
 for integration in config.enabled_integrations:
-    logger.info("Invoking %s.", integration.__class__.__name__)
-    integration.execute(new_passwd)
+    logger.info("Invoking %s...", integration.__class__.__name__)
+    if integration.execute(new_passwd) != 0:
+        logger.error("%s failed!", integration.__class__.__name__)

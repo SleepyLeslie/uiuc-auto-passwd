@@ -10,3 +10,8 @@ password = y0ur_V3ry_seCuRe_P4ssw*rd!
 [integrations]
 print = true
 network_manager = false
+bitwarden = true
+
+[integration.bitwarden]
+retry = 3
+ids = 11111111-1111-1111-1111-111111111111 00000000-0000-0000-0000-000000000000

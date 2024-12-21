@@ -41,13 +41,20 @@ Currently it is only a Proof of Concept showing that I can automate the password
 - Connects to your IMAP server,
 - Locates the requested email,
 - Generates a secure password (also secure by UIUC's definitions),
-- Resets your password and shows it to you.
-
-The following features are planned:
-- Bitwarden integration to update the saved password(s).
-- NetworkManager integration.
+- Resets your password.
+- Runs Integrations with the new password.
 
 If you find this idea useful but you use a different setup than mine, say you prefer Duo push notifications (but seriously, why?) or use a personal email address that does not support IMAP for whatever reasons (e.g. proton free plan), feel free to raise feature requests and I will be happy to extend this tool.
+
+## Integrations
+
+After resetting the password, you will need to know what the new password is. PrintIntegration prints the new password to the terminal. To enable it, set `print = true` in the `integrations` config section.
+
+Alternatively (or additionally), you might want to update your saved passwords, for example in your password manager. The following integrations are currently supported:
+- BitwardenIntegration, which uses the `bw` CLI tool.
+- NetworkManagerIntegration, which uses `nmcli` to update the password for `IllinoisNet`.
+
+Feel free to request (or better, develop) other integrations you think will be useful!
 
 ## TOTP
 

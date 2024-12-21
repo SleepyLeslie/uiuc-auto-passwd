@@ -54,10 +54,15 @@ class Config:
             logger.critical("%s not defined in config file", e)
             sys.exit(1)
         try:
-            integration_config = config["integrations"]
+            integrations_config = config["integrations"]
             for integration_name, integration in AVAILABLE_INTEGRATIONS.items():
-                if integration_config[integration_name]:
+                if integrations_config.getboolean(integration_name):
                     logger.info("Enabled %s.", integration.__name__)
-                    self.enabled_integrations.append(integration())
+                    int_config = config[f"integration.{integration_name}"] \
+                        if config.has_section(f"integration.{integration_name}") else None
+                    self.enabled_integrations.append(
+                        integration(*([int_config] if int_config is not None else []))
+                    )
         except Exception as e:
             logger.warning("Error when parsing integration configuration: %s", e)
+            raise e from e

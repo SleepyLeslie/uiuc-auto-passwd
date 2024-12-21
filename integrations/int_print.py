@@ -1,7 +1,11 @@
 from .integration import Integration
 
 class PrintIntegration(Integration):
-    def execute(self, new_passwd: str):
+
+    def __init__(self):
+        pass
+
+    def execute(self, new_passwd: str) -> int:
         print(f"""
 
 ====== Your New Password ======
@@ -11,3 +15,4 @@ class PrintIntegration(Integration):
 ===============================
 
 """)
+        return 0
